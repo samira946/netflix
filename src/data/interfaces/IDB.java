@@ -1,4 +1,4 @@
-package data.interfaces;
+package src..data.interfaces;
 
 import java.sql.Connection;
 
