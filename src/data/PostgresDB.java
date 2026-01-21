@@ -1,4 +1,4 @@
-package src..data;
+package data;
 
 import data.interfaces.IDB;
 

@@ -1,4 +1,4 @@
-package src..repositories;
+package repositories;
 
 import data.interfaces.IDB;
 import models.User;
