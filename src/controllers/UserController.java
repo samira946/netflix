@@ -1,4 +1,4 @@
-package src..controllers;
+package controllers;
 
 import models.User;
 import controllers.interfaces.IUserController;
@@ -13,9 +13,9 @@ public class UserController implements IUserController {
         this.repo = repo;
     }
 
-    public String createUser(String name, String surname, String gender) {
+    public String createUser(String name, String surname, String gender, String login, String password) {
         boolean male = gender.equalsIgnoreCase("male");
-        User user = new User(name, surname, male);
+        User user = new User(name, surname, male, login, password);
 
         boolean created = repo.createUser(user);
 

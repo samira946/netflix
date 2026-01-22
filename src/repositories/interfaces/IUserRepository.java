@@ -1,4 +1,4 @@
-package src..repositories.interfaces;
+package repositories.interfaces;
 
 import models.User;
 

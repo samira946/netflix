@@ -1,4 +1,4 @@
-package src..models;
+package models;
 
 public class User {
     private int id;
@@ -6,20 +6,29 @@ public class User {
     private String surname;
     private boolean gender;
 
+    private String login;
+    private String password;
+    private String subscriptionType;
+
     public User() {
 
     }
 
-    public User(String name, String surname, boolean gender) {
+    public User(String name, String surname, boolean gender, String login, String password) {
         setName(name);
         setSurname(surname);
         setGender(gender);
+        setLogin(login);
+        setPassword(password);
+        this.subscriptionType = "None";
     }
 
-    public User(int id, String name, String surname, boolean gender) {
-        this(name, surname, gender);
+    public User(int id, String name, String surname, boolean gender, String login, String password, String subscriptionType) {
+        this(name, surname, gender, login, password);
         setId(id);
+        setSubscriptionType(subscriptionType);
     }
+
 
     public int getId() {
         return id;
@@ -53,12 +62,26 @@ public class User {
         this.gender = gender;
     }
 
+    public String getLogin() { return login; }
+
+    public void setLogin(String login) { this.login = login; }
+
+    public String getPassword() { return password; }
+
+    public void setPassword(String password) { this.password = password; }
+
+    public String getSubscriptionType() { return subscriptionType; }
+
+    public void setSubscriptionType(String subscriptionType) { this.subscriptionType = subscriptionType; }
+
     @Override
     public String toString() {
         return "User{" +
                 "id=" + id +
+                ", login='" + login + '\'' +
                 ", name='" + name + '\'' +
                 ", surname='" + surname + '\'' +
+                ", subscription='" + subscriptionType + '\'' +
                 ", gender=" + (gender ? "Male" : "Female") +
                 '}';
     }
