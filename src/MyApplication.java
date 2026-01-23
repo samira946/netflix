@@ -1,76 +1,107 @@
+package src;
 
 import controllers.interfaces.IUserController;
-
 import java.util.InputMismatchException;
 import java.util.Scanner;
 
 public class MyApplication {
     private final Scanner scanner = new Scanner(System.in);
-
     private final IUserController controller;
+    private String currentUserName = "";
 
     public MyApplication(IUserController controller) {
         this.controller = controller;
     }
 
-    private void mainMenu() {
-        System.out.println();
-        System.out.println("Welcome to My Application");
-        System.out.println("Select option:");
-        System.out.println("1. Get all users");
-        System.out.println("2. Get user by id");
-        System.out.println("3. Create user");
-        System.out.println("0. Exit");
-        System.out.println();
-        System.out.print("Enter option (1-3): ");
-    }
 
-    public void start() {
-        while (true) {
-            mainMenu();
-            try {
-                int option = scanner.nextInt();
+    private void printLogo(){
+        System.out.println("* NETFLIX CLONE PROJECT         *");
+}
 
-                switch (option) {
-                    case 1: getAllUsersMenu(); break;
-                    case 2: getUserByIdMenu(); break;
-                    case 3: createUserMenu(); break;
-                    default: return;
-                }
-            } catch (InputMismatchException e) {
-                System.out.println("Input must be integer: " + e);
-                scanner.nextLine(); // to ignore incorrect input
-            } catch (Exception e) {
-                System.out.println(e.getMessage());
+public void start() {
+    printLogo();
+    while (true) {
+        showMainMenu();
+        try {
+            int option = scanner.nextInt();
+            if (option == 1) {
+                getAllUsersMenu();
+            } else if (option == 2) {
+                getUserByIdMenu();
+            } else if (option == 3) {
+                registrationFlow();
+            } else if (option == 0) {
+                System.out.println("Goodbye!");
+                break;
+            } else {
+                System.out.println("Invalid option, try again.");
             }
-
-            System.out.println("*************************");
+        } catch (InputMismatchException e) {
+            System.out.println("Please enter a number!");
+            scanner.nextLine();
         }
     }
+}
 
-    public void getAllUsersMenu() {
-        String response = controller.getAllUsers();
-        System.out.println(response);
+private void showMainMenu() {
+    System.out.println("\n--- MAIN MENU ---");
+    System.out.println("1. List all users");
+    System.out.println("2. Find user by ID");
+    System.out.println("3. REGISTER NEW ACCOUNT");
+    System.out.println("0. Exit");
+    System.out.print("Select: ");
+}
+
+
+private void registrationFlow() {
+    System.out.println("\n--- Registration Form ---");
+    System.out.print("Name: "); String name = scanner.next();
+    System.out.print("Surname: "); String surname = scanner.next();
+    System.out.print("Gender (male/female): "); String gender = scanner.next();
+    System.out.print("Create Login: "); String login = scanner.next();
+    System.out.print("Create Password: "); String password = scanner.next();
+
+
+    String result = controller.createUser(name, surname, gender, login, password);
+    System.out.println(result);
+
+    if (result.contains("created")) {
+        this.currentUserName = name;
+        subscriptionStep();
+    }
+}
+public void getAllUsersMenu() {
+    System.out.println(controller.getAllUsers());
+}
+
+public void getUserByIdMenu() {
+    System.out.print("Enter ID: ");
+    int id = scanner.nextInt();
+    System.out.println(controller.getUser(id));
+}
+}
+
+private void subscriptionStep() {
+    System.out.println("\nCongratulations, " + currentUserName + "!");
+    System.out.println("Choose your Netflix Plan to start watching:");
+    System.out.println("1. [BASIC]    - 720p (1 device)   -> $9.99");
+    System.out.println("2. [STANDARD] - 1080p (2 devices) -> $15.49");
+    System.out.println("3. [PREMIUM]  - 4K+HDR (4 devices) -> $19.99");
+    System.out.print("Select plan (1-3): ");
+
+    int choice = scanner.nextInt();
+    String planName;
+    switch (choice) {
+        case 1 -> planName = "BASIC";
+        case 2 -> planName = "STANDARD";
+        case 3 -> planName = "PREMIUM";
+        default -> planName = "NONE";
     }
 
-    public void getUserByIdMenu() {
-        System.out.println("Please enter id");
-
-        int id = scanner.nextInt();
-
-        String response = controller.getUser(id);
-        System.out.println(response);
-    }
-
-    public void createUserMenu() {
-        System.out.println("Please enter name");
-        String name = scanner.next();
-        System.out.println("Please enter surname");
-        String surname = scanner.next();
-        System.out.println("Please enter gender (male/female)");
-        String gender = scanner.next();
-
-        String response = controller.createUser(name, surname, gender);
-        System.out.println(response);
+    if (!planName.equals("NONE")) {
+        System.out.println("\n[SUCCESS] Your " + planName + " subscription is now active!");
+        System.out.println("Enjoy your movies!");
+    } else {
+        System.out.println("No plan selected. You can choose it later in settings.");
     }
 }
