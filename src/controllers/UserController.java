@@ -1,4 +1,4 @@
-package src..controllers;
+package controllers;
 
 import models.User;
 import controllers.interfaces.IUserController;
