@@ -63,11 +63,11 @@ public class MyApplication {
     }
 
     public void createUserMenu() {
-        System.out.println("Please enter name");
+        System.out.println("Please enter email adress or phone number");
         String name = scanner.next();
-        System.out.println("Please enter surname");
+        System.out.println("Please create a password");
         String surname = scanner.next();
-        System.out.println("Please enter gender (male/female)");
+        System.out.println("Please select subscripton plan");
         String gender = scanner.next();
 
         String response = controller.createUser(name, surname, gender);
