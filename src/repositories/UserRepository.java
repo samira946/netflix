@@ -12,6 +12,7 @@ public class UserRepository implements IUserRepository {
     private final IDB db;
     private Connection connection;
 
+
     public UserRepository(IDB db) {
         this.db = db;
         try {
@@ -74,6 +75,7 @@ public class UserRepository implements IUserRepository {
 
         return null;
     }
+
 
     @Override
     public List<User> getAllUsers() {
