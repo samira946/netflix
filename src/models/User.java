@@ -29,6 +29,9 @@ public class User {
         setSubscriptionType(subscriptionType);
     }
 
+    public User(int id, String name, String surname, boolean gender) {
+    }
+
 
     public int getId() {
         return id;

@@ -9,10 +9,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class UserRepository implements IUserRepository {
-    private final IDB db;  // Dependency Injection
+    private final IDB db;
+    private Connection connection;
+
 
     public UserRepository(IDB db) {
         this.db = db;
+        try {
+            this.connection = db.getConnection();
+        } catch (Exception e) {
+            System.out.println("Connection error: " + e.getMessage());
+        }
     }
 
     @Override
@@ -69,6 +76,7 @@ public class UserRepository implements IUserRepository {
         return null;
     }
 
+
     @Override
     public List<User> getAllUsers() {
         Connection con = null;
@@ -99,4 +107,23 @@ public class UserRepository implements IUserRepository {
 
         return null;
     }
+
+    @Override
+    public User login(String login, String password) {
+        try {
+
+            String sql = "SELECT * FROM users WHERE login=? AND password=?";
+            PreparedStatement st = connection.prepareStatement(sql);
+            st.setString(1, login);
+            st.setString(2, password);
+            ResultSet rs = st.executeQuery();
+            if (rs.next()) {
+                return new User(rs.getInt("id"), rs.getString("name"), rs.getString("surname"), rs.getBoolean("gender"));
+            }
+        } catch (SQLException e) {
+            System.out.println("SQL Error: " + e.getMessage());
+        }
+        return null;
+    }
 }
+
