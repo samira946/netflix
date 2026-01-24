@@ -21,12 +21,15 @@ public class UserRepository implements IUserRepository {
 
         try {
             con = db.getConnection();
-            String sql = "INSERT INTO users(name,surname,gender) VALUES (?,?,?)";
+            String sql = "INSERT INTO users(name,surname,gender,login,password,subscription_type) VALUES (?,?,?,?,?,?)";
             PreparedStatement st = con.prepareStatement(sql);
 
             st.setString(1, user.getName());
             st.setString(2, user.getSurname());
             st.setBoolean(3, user.getGender());
+            st.setString(4, user.getLogin());
+            st.setString(5, user.getPassword());
+            st.setString(6, user.getSubscriptionType());
 
             st.execute();
 
@@ -44,7 +47,7 @@ public class UserRepository implements IUserRepository {
 
         try {
             con = db.getConnection();
-            String sql = "SELECT id,name,surname,gender FROM users WHERE id=?";
+            String sql = "SELECT id,name,surname,gender,login,password,subscription_type FROM users WHERE id=?";
             PreparedStatement st = con.prepareStatement(sql);
 
             st.setInt(1, id);
@@ -54,7 +57,10 @@ public class UserRepository implements IUserRepository {
                 return new User(rs.getInt("id"),
                         rs.getString("name"),
                         rs.getString("surname"),
-                        rs.getBoolean("gender"));
+                        rs.getBoolean("gender"),
+                        rs.getString("login"),
+                        rs.getString("password"),
+                        rs.getString("subscription_type"));
             }
         } catch (SQLException e) {
             System.out.println("sql error: " + e.getMessage());
@@ -69,7 +75,7 @@ public class UserRepository implements IUserRepository {
 
         try {
             con = db.getConnection();
-            String sql = "SELECT id,name,surname,gender FROM users";
+            String sql = "SELECT id,name,surname,gender,login,password,subscription_type FROM users";
             Statement st = con.createStatement();
 
             ResultSet rs = st.executeQuery(sql);
@@ -78,7 +84,10 @@ public class UserRepository implements IUserRepository {
                 User user = new User(rs.getInt("id"),
                         rs.getString("name"),
                         rs.getString("surname"),
-                        rs.getBoolean("gender"));
+                        rs.getBoolean("gender"),
+                        rs.getString("login"),
+                        rs.getString("password"),
+                        rs.getString("subscription_type"));
 
                 users.add(user);
             }
