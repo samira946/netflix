@@ -64,15 +64,11 @@ public class MyApplication {
         String login = scanner.next();
         System.out.print("Create Password: ");
         String password = scanner.next();
+        this.currentUserName = name;
+        String subscriptionType = subscriptionStep();
 
-
-        String result = controller.createUser(name, surname, gender, login, password);
+        String result = controller.createUser(name, surname, gender, login, password, subscriptionType);
         System.out.println(result);
-
-        if (result.contains("created")) {
-            this.currentUserName = name;
-            subscriptionStep();
-        }
     }
 
     public void getAllUsersMenu() {
@@ -85,7 +81,7 @@ public class MyApplication {
         System.out.println(controller.getUser(id));
     }
 
-    private void subscriptionStep() {
+    private String subscriptionStep() {
         System.out.println("\nCongratulations, " + currentUserName + "!");
         System.out.println("Choose your Netflix Plan to start watching:");
         System.out.println("1. [BASIC]    - 720p (1 device)   -> $9.99");
@@ -108,5 +104,7 @@ public class MyApplication {
         } else {
             System.out.println("No plan selected. You can choose it later in settings.");
         }
+
+        return planName;
     }
 }

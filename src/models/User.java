@@ -23,6 +23,15 @@ public class User {
         this.subscriptionType = "None";
     }
 
+    public User(String name, String surname, boolean gender, String login, String password, String subscriptionType) {
+        setName(name);
+        setSurname(surname);
+        setGender(gender);
+        setLogin(login);
+        setPassword(password);
+        setSubscriptionType(subscriptionType);
+    }
+
     public User(int id, String name, String surname, boolean gender, String login, String password, String subscriptionType) {
         this(name, surname, gender, login, password);
         setId(id);
