@@ -13,9 +13,9 @@ public class UserController implements IUserController {
         this.repo = repo;
     }
 
-    public String createUser(String name, String surname, String gender, String login, String password) {
+    public String createUser(String name, String surname, String gender, String login, String password, String subscriptionType) {
         boolean male = gender.equalsIgnoreCase("male");
-        User user = new User(name, surname, male, login, password);
+        User user = new User(name, surname, male, login, password, subscriptionType);
 
         boolean created = repo.createUser(user);
 
