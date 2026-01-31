@@ -1,104 +1,112 @@
-import controllers.interfaces.IUserController;
 
+import controllers.interfaces.IUserController;
 import java.util.InputMismatchException;
 import java.util.Scanner;
 
 public class MyApplication {
-
     private final Scanner scanner = new Scanner(System.in);
     private final IUserController controller;
+    private String currentUserName = "";
 
     public MyApplication(IUserController controller) {
         this.controller = controller;
     }
 
-    private void mainMenu() {
-        System.out.println();
-        System.out.println("Welcome to My Application");
-        System.out.println("Select option:");
-        System.out.println("1. Get all users");
-        System.out.println("2. Get user by id");
-        System.out.println("3. Create user");
-        System.out.println("0. Exit");
-        System.out.println();
-        System.out.print("Enter option (1-3): ");
+
+    private void printLogo() {
+        System.out.println("* NETFLIX CLONE PROJECT         *");
     }
 
     public void start() {
+        printLogo();
         while (true) {
-            mainMenu();
+            showMainMenu();
             try {
                 int option = scanner.nextInt();
-
-                switch (option) {
-                    case 1 -> getAllUsersMenu();
-                    case 2 -> getUserByIdMenu();
-                    case 3 -> createUserMenu();
-                    default -> {
-                        return;
-                    }
+                if (option == 1) {
+                    getAllUsersMenu();
+                } else if (option == 2) {
+                    getUserByIdMenu();
+                } else if (option == 3) {
+                    registrationFlow();
+                } else if (option == 0) {
+                    System.out.println("Goodbye!");
+                    break;
+                } else {
+                    System.out.println("Invalid option, try again.");
                 }
             } catch (InputMismatchException e) {
-                System.out.println("Input must be integer!");
+                System.out.println("Please enter a number!");
                 scanner.nextLine();
-            } catch (Exception e) {
-                System.out.println(e.getMessage());
             }
-
-            System.out.println("*************************");
         }
     }
 
-    // ===== VALIDATION (код со скрина) =====
-    private boolean validateUserInput(String name, String login, String password) {
-        if (name.length() < 2) {
-            System.out.println("[QA Error]: Name is too short!");
-            return false;
-        }
+    private void showMainMenu() {
+        System.out.println("\n--- MAIN MENU ---");
+        System.out.println("1. List all users");
+        System.out.println("2. Find user by ID");
+        System.out.println("3. REGISTER NEW ACCOUNT");
+        System.out.println("0. Exit");
+        System.out.print("Select: ");
+    }
 
-        if (login.contains(" ") || password.length() < 4) {
-            System.out.println("[QA Error]: Invalid login or weak password!");
-            return false;
-        }
 
-        return true;
+    private void registrationFlow() {
+        System.out.println("\n--- Registration Form ---");
+        System.out.print("Name: ");
+        String name = scanner.next();
+        System.out.print("Surname: ");
+        String surname = scanner.next();
+        System.out.print("Gender (male/female): ");
+        String gender = scanner.next();
+        System.out.print("Create Login: ");
+        String login = scanner.next();
+        System.out.print("Create Password: ");
+        String password = scanner.next();
+
+
+        String result = controller.createUser(name, surname, gender, login, password);
+        System.out.println(result);
+
+        if (result.contains("created")) {
+            this.currentUserName = name;
+            subscriptionStep();
+        }
     }
 
     public void getAllUsersMenu() {
-        String response = controller.getAllUsers();
-        System.out.println(response);
+        System.out.println(controller.getAllUsers());
     }
 
     public void getUserByIdMenu() {
-        System.out.println("Please enter id");
+        System.out.print("Enter ID: ");
         int id = scanner.nextInt();
-
-        String response = controller.getUser(id);
-        System.out.println(response);
+        System.out.println(controller.getUser(id));
     }
 
-    // ===== REGISTRATION FLOW =====
-    public void createUserMenu() {
-        System.out.println("Please enter name");
-        String name = scanner.next();
+    private void subscriptionStep() {
+        System.out.println("\nCongratulations, " + currentUserName + "!");
+        System.out.println("Choose your Netflix Plan to start watching:");
+        System.out.println("1. [BASIC]    - 720p (1 device)   -> $9.99");
+        System.out.println("2. [STANDARD] - 1080p (2 devices) -> $15.49");
+        System.out.println("3. [PREMIUM]  - 4K+HDR (4 devices) -> $19.99");
+        System.out.print("Select plan (1-3): ");
 
-        System.out.println("Please enter surname");
-        String surname = scanner.next();
+        int choice = scanner.nextInt();
+        String planName;
+        switch (choice) {
+            case 1 -> planName = "BASIC";
+            case 2 -> planName = "STANDARD";
+            case 3 -> planName = "PREMIUM";
+            default -> planName = "NONE";
+        }
 
-        System.out.println("Please enter gender (male/female)");
-        String gender = scanner.next();
-
-        System.out.println("Please enter login");
-        String login = scanner.next();
-
-        System.out.println("Please enter password");
-        String password = scanner.next();
-
-        if (validateUserInput(name, login, password)) {
-            String result = controller.createUser(name, surname, gender, login, password);
-            System.out.println(result);
+        if (!planName.equals("NONE")) {
+            System.out.println("\n[SUCCESS] Your " + planName + " subscription is now active!");
+            System.out.println("Enjoy your movies!");
         } else {
-            System.out.println("Registration aborted due to validation errors.");
+            System.out.println("No plan selected. You can choose it later in settings.");
         }
     }
 }
