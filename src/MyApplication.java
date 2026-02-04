@@ -1,4 +1,3 @@
-
 import controllers.interfaces.IUserController;
 import java.util.InputMismatchException;
 import java.util.Scanner;
@@ -8,10 +7,13 @@ public class MyApplication {
     private final IUserController controller;
     private String currentUserName = "";
 
+    // ✅ добавили состояние логина (минимально)
+    private boolean isLoggedIn = false;
+    private String currentLogin = "";
+
     public MyApplication(IUserController controller) {
         this.controller = controller;
     }
-
 
     private void printLogo() {
         System.out.println("* NETFLIX CLONE PROJECT         *");
@@ -23,12 +25,15 @@ public class MyApplication {
             showMainMenu();
             try {
                 int option = scanner.nextInt();
+
                 if (option == 1) {
                     getAllUsersMenu();
                 } else if (option == 2) {
                     getUserByIdMenu();
                 } else if (option == 3) {
                     registrationFlow();
+                } else if (option == 4) {   // ✅ добавили login
+                    loginFlow();
                 } else if (option == 0) {
                     System.out.println("Goodbye!");
                     break;
@@ -47,10 +52,35 @@ public class MyApplication {
         System.out.println("1. List all users");
         System.out.println("2. Find user by ID");
         System.out.println("3. REGISTER NEW ACCOUNT");
+        System.out.println("4. LOGIN"); // ✅ добавили пункт меню
+
+        // (опционально) показать статус
+        if (isLoggedIn) {
+            System.out.println("Logged in as: " + currentLogin);
+        }
+
         System.out.println("0. Exit");
         System.out.print("Select: ");
     }
 
+    // ✅ новый метод логина (минимально)
+    private void loginFlow() {
+        System.out.println("\n--- LOGIN ---");
+        System.out.print("Login: ");
+        String login = scanner.next();
+        System.out.print("Password: ");
+        String password = scanner.next();
+
+        String result = controller.login(login, password);
+
+        if (result != null && result.toLowerCase().contains("success")) {
+            isLoggedIn = true;
+            currentLogin = login;
+            currentUserName = login;
+        }
+
+        System.out.println(result);
+    }
 
     private void registrationFlow() {
         System.out.println("\n--- Registration Form ---");
