@@ -7,7 +7,7 @@ public class MyApplication {
     private final IUserController controller;
     private String currentUserName = "";
 
-    // ✅ добавили состояние логина (минимально)
+
     private boolean isLoggedIn = false;
     private String currentLogin = "";
 
@@ -32,7 +32,7 @@ public class MyApplication {
                     getUserByIdMenu();
                 } else if (option == 3) {
                     registrationFlow();
-                } else if (option == 4) {   // ✅ добавили login
+                } else if (option == 4) {
                     loginFlow();
                 } else if (option == 0) {
                     System.out.println("Goodbye!");
@@ -52,9 +52,9 @@ public class MyApplication {
         System.out.println("1. List all users");
         System.out.println("2. Find user by ID");
         System.out.println("3. REGISTER NEW ACCOUNT");
-        System.out.println("4. LOGIN"); // ✅ добавили пункт меню
+        System.out.println("4. LOGIN");
 
-        // (опционально) показать статус
+
         if (isLoggedIn) {
             System.out.println("Logged in as: " + currentLogin);
         }
@@ -63,7 +63,7 @@ public class MyApplication {
         System.out.print("Select: ");
     }
 
-    // ✅ новый метод логина (минимально)
+
     private void loginFlow() {
         System.out.println("\n--- LOGIN ---");
         System.out.print("Login: ");
