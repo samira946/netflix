@@ -95,28 +95,31 @@ public class UserRepository implements IUserRepository {
     }
 
     @Override
-    public User getUserByLogin(String login) {
-        Connection con = null;
-        try {
-            String sql = "SELECT id, name, surname, gender, login, password, subscription_type FROM users WHERE login=? AND password=? LIMIT 1";
-            PreparedStatement st = connection.prepareStatement(sql);
-            st.setString(1, login);
-            st.setString(2, password);
+    public User login(String login, String password) {
+        return null;
+    }
 
-            ResultSet rs = st.executeQuery();
-            if (rs.next()) {
-                return new User(
-                        rs.getInt("id"),
-                        rs.getString("name"),
-                        rs.getString("surname"),
-                        rs.getBoolean("gender"),
-                        rs.getString("login"),
-                        rs.getString("password"),
-                        rs.getString("subscription_type")
-                );
+    @Override
+    public User getUserByLogin(String login) {
+        String sql = "SELECT id, name, surname, gender, login, password, subscription_type FROM users WHERE login=? LIMIT 1";
+        try (Connection con = db.getConnection();
+             PreparedStatement st = con.prepareStatement(sql)) {
+            st.setString(1, login);
+            try (ResultSet rs = st.executeQuery()) {
+                if (rs.next()) {
+                    return new User(
+                            rs.getInt("id"),
+                            rs.getString("name"),
+                            rs.getString("surname"),
+                            rs.getBoolean("gender"),
+                            rs.getString("login"),
+                            rs.getString("password"),
+                            rs.getString("subscription_type")
+                    );
+                }
             }
         } catch (SQLException e) {
-            System.out.println("SQL Error: " + e.getMessage());
+            System.out.println("SQL Error in getUserByLogin: " + e.getMessage());
         }
         return null;
     }
@@ -125,7 +128,8 @@ public class UserRepository implements IUserRepository {
     public boolean checkCredentials(String login, String password) {
         String sql = "SELECT 1 FROM users WHERE login = ? AND password = ? LIMIT 1";
 
-        try (PreparedStatement st = connection.prepareStatement(sql)) {
+        try (Connection con = db.getConnection();
+             PreparedStatement st = con.prepareStatement(sql)) {
             st.setString(1, login);
             st.setString(2, password);
 

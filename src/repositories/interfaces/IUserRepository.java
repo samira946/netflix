@@ -10,5 +10,5 @@ public interface IUserRepository {
     List<User> getAllUsers();
     User login(String login, String password);
     boolean checkCredentials(String login, String password);
-
+    User getUserByLogin(String login);
 }
