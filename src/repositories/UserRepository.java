@@ -86,6 +86,8 @@ public class UserRepository implements IUserRepository {
                         rs.getString("subscription_type")
                 ));
             }
+
+            return users;
         } catch (SQLException e) {
             System.out.println("sql error: " + e.getMessage());
         }
@@ -93,7 +95,8 @@ public class UserRepository implements IUserRepository {
     }
 
     @Override
-    public User login(String login, String password) {
+    public User getUserByLogin(String login) {
+        Connection con = null;
         try {
             String sql = "SELECT id, name, surname, gender, login, password, subscription_type FROM users WHERE login=? AND password=? LIMIT 1";
             PreparedStatement st = connection.prepareStatement(sql);

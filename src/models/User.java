@@ -9,7 +9,7 @@ public class User {
     private String login;
     private String password;
     private String subscriptionType;
-
+    private boolean isAdmin;
     public User() {
 
     }
@@ -21,6 +21,7 @@ public class User {
         setLogin(login);
         setPassword(password);
         this.subscriptionType = "None";
+        setAdmin(login != null && login.equalsIgnoreCase("admin"));
     }
 
     public User(String name, String surname, boolean gender, String login, String password, String subscriptionType) {
@@ -30,6 +31,7 @@ public class User {
         setLogin(login);
         setPassword(password);
         setSubscriptionType(subscriptionType);
+        setAdmin(login != null && login.equalsIgnoreCase("admin") || "ADMIN".equalsIgnoreCase(subscriptionType));
     }
 
     public User(int id, String name, String surname, boolean gender, String login, String password, String subscriptionType) {
@@ -39,6 +41,17 @@ public class User {
     }
 
     public User(int id, String name, String surname, boolean gender) {
+        setId(id);
+        setName(name);
+        setSurname(surname);
+        setGender(gender);
+    }
+    public boolean isAdmin() {
+        return isAdmin;
+    }
+
+    public void setAdmin(boolean admin) {
+        isAdmin = admin;
     }
 
 
