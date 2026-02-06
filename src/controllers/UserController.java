@@ -13,6 +13,10 @@ public class UserController implements IUserController {
         this.repo = repo;
     }
 
+    public IUserRepository getRepo() {
+        return repo;
+    }
+
     @Override
     public String createUser(String name, String surname, String gender, String login, String password, String subscriptionType) {
         boolean male = gender.equalsIgnoreCase("male");

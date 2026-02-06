@@ -1,23 +1,28 @@
+
 import controllers.interfaces.IUserController;
-import models.Movies;
-import repositories.interfaces.IMovieRepository;
+import controllers.interfaces.INetflixController;
+import models.User;
+import repositories.UserRepository;
+import controllers.UserController;
+
 
 import java.util.InputMismatchException;
 import java.util.Scanner;
-import java.util.List;
-import java.util.ArrayList;
 
 public class MyApplication {
     private final Scanner scanner = new Scanner(System.in);
     private final IUserController controller;
+    private final INetflixController netflixController;
     private String currentUserName = "";
 
 
     private boolean isLoggedIn = false;
     private String currentLogin = "";
 
-    public MyApplication(IUserController controller) {
+
+    public MyApplication(IUserController controller, INetflixController netflixController) {
         this.controller = controller;
+        this.netflixController = netflixController;
     }
 
 
@@ -86,6 +91,30 @@ public class MyApplication {
         }
 
         System.out.println(result);
+        if (result != null && result.toLowerCase().contains("success")) {
+            isLoggedIn = true;
+            currentLogin = login;
+            loggedInMenu(login); // Запуск меню пользователя
+        }
+    }
+
+    private void loggedInMenu(String login) {
+        User user = ((UserRepository)((UserController)controller).getRepo()).getUserByLogin(login);
+
+        while (isLoggedIn) {
+            System.out.println("\n--- USER: " + user.getName() + " [" + user.getSubscriptionType() + "] ---");
+            System.out.println("1. Watch Movie | 2. Show Movies | 0. Logout");
+            int choice = scanner.nextInt();
+            if (choice == 1) {
+                System.out.print("Enter Movie ID: ");
+                int mid = scanner.nextInt();
+                System.out.println(netflixController.watchMovie(mid, user));
+            } else if (choice == 2) {
+                System.out.println(netflixController.getAllMovies());
+            } else if (choice == 0) {
+                isLoggedIn = false;
+            }
+        }
     }
 
     private void registrationFlow() {
@@ -102,6 +131,7 @@ public class MyApplication {
         String password = scanner.next();
 
         if (!validateUserInput(name, login, password)) {
+
             System.out.println("Registration aborted due to validation errors.");
 
             return;
@@ -164,5 +194,33 @@ public class MyApplication {
         }
 
         return true;
+    }
+    private void loggedInMenu(String login) {
+        // Получаем объект пользователя через репозиторий
+        User user = ((UserRepository)((UserController)controller).getRepo()).getUserByLogin(login);
+
+        while (true) {
+            System.out.println("\n--- USER PANEL: " + user.getName().toUpperCase() + " ---");
+            System.out.println("1. List All Available Movies");
+            System.out.println("2. Watch Movie by ID");
+            System.out.println("3. My Subscription Status");
+            System.out.println("0. Logout");
+            System.out.print("Select: ");
+
+            int choice = scanner.nextInt();
+            if (choice == 1) {
+                System.out.println(netflixController.getAllMovies());
+            } else if (choice == 2) {
+                System.out.print("Enter Movie ID: ");
+                int mid = scanner.nextInt();
+                // Вызов метода просмотра (передаем пользователя для проверки подписки)
+                System.out.println(netflixController.watchMovie(mid, user));
+            } else if (choice == 3) {
+                System.out.println("Your current plan: " + user.getSubscriptionType());
+            } else if (choice == 0) {
+                isLoggedIn = false;
+                break;
+            }
+        }
     }
 }
