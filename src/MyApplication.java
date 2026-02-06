@@ -1,28 +1,23 @@
-
 import controllers.interfaces.IUserController;
-import controllers.interfaces.INetflixController;
-import models.User;
-import repositories.UserRepository;
-import controllers.UserController;
-
+import models.Movies;
+import repositories.interfaces.IMovieRepository;
 
 import java.util.InputMismatchException;
 import java.util.Scanner;
+import java.util.List;
+import java.util.ArrayList;
 
 public class MyApplication {
     private final Scanner scanner = new Scanner(System.in);
     private final IUserController controller;
-    private final INetflixController netflixController;
     private String currentUserName = "";
 
 
     private boolean isLoggedIn = false;
     private String currentLogin = "";
 
-
-    public MyApplication(IUserController controller, INetflixController netflixController) {
+    public MyApplication(IUserController controller) {
         this.controller = controller;
-        this.netflixController = netflixController;
     }
 
 
@@ -88,33 +83,12 @@ public class MyApplication {
             isLoggedIn = true;
             currentLogin = login;
             currentUserName = login;
+
+            showMoviesMenu();
+            movieSearchMenu();
         }
 
         System.out.println(result);
-        if (result != null && result.toLowerCase().contains("success")) {
-            isLoggedIn = true;
-            currentLogin = login;
-            loggedInMenu(login); // Запуск меню пользователя
-        }
-    }
-
-    private void loggedInMenu(String login) {
-        User user = ((UserRepository)((UserController)controller).getRepo()).getUserByLogin(login);
-
-        while (isLoggedIn) {
-            System.out.println("\n--- USER: " + user.getName() + " [" + user.getSubscriptionType() + "] ---");
-            System.out.println("1. Watch Movie | 2. Show Movies | 0. Logout");
-            int choice = scanner.nextInt();
-            if (choice == 1) {
-                System.out.print("Enter Movie ID: ");
-                int mid = scanner.nextInt();
-                System.out.println(netflixController.watchMovie(mid, user));
-            } else if (choice == 2) {
-                System.out.println(netflixController.getAllMovies());
-            } else if (choice == 0) {
-                isLoggedIn = false;
-            }
-        }
     }
 
     private void registrationFlow() {
@@ -131,7 +105,6 @@ public class MyApplication {
         String password = scanner.next();
 
         if (!validateUserInput(name, login, password)) {
-
             System.out.println("Registration aborted due to validation errors.");
 
             return;
@@ -157,9 +130,9 @@ public class MyApplication {
     private String subscriptionStep() {
         System.out.println("\nCongratulations, " + currentUserName + "!");
         System.out.println("Choose your Netflix Plan to start watching:");
-        System.out.println("1. [BASIC]    - 720p (1 device)   -> $9.99");
-        System.out.println("2. [STANDARD] - 1080p (2 devices) -> $15.49");
-        System.out.println("3. [PREMIUM]  - 4K+HDR (4 devices) -> $19.99");
+        System.out.println("1. [BASIC]    - 720p, contains ads                  -> $9.99");
+        System.out.println("2. [STANDARD] - 1080p, no ads                       -> $15.49");
+        System.out.println("3. [PREMIUM]  - 4K+HDR, no ads, all Movies unlocked -> $19.99");
         System.out.print("Select plan (1-3): ");
 
         int choice = scanner.nextInt();
@@ -181,7 +154,6 @@ public class MyApplication {
         return planName;
     }
 
-    // ===== VALIDATION (код со скрина) =====
     private boolean validateUserInput(String name, String login, String password) {
         if (name.length() < 2) {
             System.out.println("[QA Error]: Name is too short!");
@@ -195,32 +167,49 @@ public class MyApplication {
 
         return true;
     }
-    private void loggedInMenu(String login) {
-        // Получаем объект пользователя через репозиторий
-        User user = ((UserRepository)((UserController)controller).getRepo()).getUserByLogin(login);
 
+    private void showMoviesMenu() {
+        System.out.println("\n--- MOVIES LIST ---");
+
+        List<Movies> movies = controller.getAllMovies();
+
+        if (movies == null || movies.isEmpty()) {
+            System.out.println("No movies available right now.");
+        } else {
+            movies.forEach(movie -> System.out.println(
+                    "🎬 " + movie.getTitle() + " | Category: " + movie.getCategory() +
+                            (movie.isPremium() ? " [PREMIUM 💎]" : "")
+            ));
+        }
+    }
+
+    private void movieSearchMenu() {
         while (true) {
-            System.out.println("\n--- USER PANEL: " + user.getName().toUpperCase() + " ---");
-            System.out.println("1. List All Available Movies");
-            System.out.println("2. Watch Movie by ID");
-            System.out.println("3. My Subscription Status");
-            System.out.println("0. Logout");
+            System.out.println("\n--- MOVIE SEARCH ---");
+            System.out.println("1. Search by Category");
+            System.out.println("2. Search by Title");
+            System.out.println("0. Back to Main Menu");
             System.out.print("Select: ");
 
             int choice = scanner.nextInt();
+            scanner.nextLine();
+
             if (choice == 1) {
-                System.out.println(netflixController.getAllMovies());
-            } else if (choice == 2) {
-                System.out.print("Enter Movie ID: ");
-                int mid = scanner.nextInt();
-                // Вызов метода просмотра (передаем пользователя для проверки подписки)
-                System.out.println(netflixController.watchMovie(mid, user));
-            } else if (choice == 3) {
-                System.out.println("Your current plan: " + user.getSubscriptionType());
-            } else if (choice == 0) {
-                isLoggedIn = false;
-                break;
+                System.out.print("Enter category (Fantasy, Sci-Fi, Horror, Comedy): ");
+                String cat = scanner.nextLine();
+
+                controller.getAllMovies().stream()
+                        .filter(m -> m.getCategory().equalsIgnoreCase(cat))
+                        .forEach(m -> System.out.println("- " + m.getTitle() + (m.isPremium() ? " [PREMIUM]" : "")));
             }
+            else if (choice == 2) {
+                System.out.print("Enter movie title to watch: ");
+                String title = scanner.nextLine();
+
+                System.out.println("\n>>> " + controller.watchMovie(currentLogin, title));
+            }
+            else if (choice == 0) break;
         }
     }
+
 }

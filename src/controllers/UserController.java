@@ -1,5 +1,6 @@
 package controllers;
 
+import models.Movies;
 import models.User;
 import controllers.interfaces.IUserController;
 import repositories.interfaces.IUserRepository;
@@ -47,5 +48,35 @@ public class UserController implements IUserController {
     public String login(String login, String password) {
         boolean success = repo.checkCredentials(login, password);
         return success ? "SUCCESS: Logged in" : "ERROR: Wrong login or password";
+    }
+
+    @Override
+    public List<models.Movies> getAllMovies() {
+        return repo.getAllMovies();
+    }
+
+    @Override
+    public String watchMovie(String login, String movieTitle) {
+        User user = repo.getUserByLogin(login);
+        List<Movies> allMovies = repo.getAllMovies();
+
+        Movies foundMovie = allMovies.stream()
+                .filter(m -> m.getTitle().equalsIgnoreCase(movieTitle))
+                .findFirst()
+                .orElse(null);
+
+        if (foundMovie == null) return "Movie not found";
+
+        String sub = user.getSubscriptionType().toUpperCase();
+
+        if (foundMovie.isPremium() && !sub.equals("PREMIUM")) {
+            return "This movie requires Premium subscription";
+        }
+
+        if (sub.equals("BASIC")) {
+            return "Enjoy your movie! '" + foundMovie.getTitle() + "' (contains ads)";
+        }
+
+        return "Enjoy your movie! '" + foundMovie.getTitle() + "'";
     }
 }

@@ -11,4 +11,6 @@ public interface IUserRepository {
     User login(String login, String password);
     boolean checkCredentials(String login, String password);
     User getUserByLogin(String login);
+
+    List<models.Movies> getAllMovies();
 }

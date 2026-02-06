@@ -55,21 +55,20 @@ public class UserRepository implements IUserRepository {
 
             ResultSet rs = st.executeQuery();
             if (rs.next()) {
-                return new User(
-                        rs.getInt("id"),
+                return new User(rs.getInt("id"),
                         rs.getString("name"),
                         rs.getString("surname"),
                         rs.getBoolean("gender"),
                         rs.getString("login"),
                         rs.getString("password"),
-                        rs.getString("subscription_type")
-                );
+                        rs.getString("subscription_type"));
             }
         } catch (SQLException e) {
             System.out.println("sql error: " + e.getMessage());
         }
         return null;
     }
+
 
     @Override
     public List<User> getAllUsers() {
@@ -146,5 +145,24 @@ public class UserRepository implements IUserRepository {
             return false;
         }
     }
+    @Override
+    public List<Movies> getAllMovies() {
+        List<Movies> movies = new ArrayList<>();
+        try (Connection con = db.getConnection();
+             Statement st = con.createStatement();
+             ResultSet rs = st.executeQuery("SELECT id, title, category, is_premium FROM movies")) {
 
+            while (rs.next()) {
+                movies.add(new Movies(
+                        rs.getInt("id"),
+                        rs.getString("title"),
+                        rs.getString("category"),
+                        rs.getBoolean("is_premium")
+                ));
+            }
+        } catch (SQLException e) {
+            System.out.println("SQL Error in getAllMovies: " + e.getMessage());
+        }
+        return movies;
+    }
 }

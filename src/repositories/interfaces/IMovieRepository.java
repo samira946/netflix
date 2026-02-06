@@ -5,6 +5,7 @@ import models.Movies;
 import java.util.List;
 
 public interface IMovieRepository {
-    // Здесь можно добавить поиск по категории
+    List<Movies> getAllMovies();
+    Movies getMovieById(int id);
     List<Movies> findByCategory(String category);
 }
