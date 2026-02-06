@@ -25,10 +25,7 @@ public class UserRepository implements IUserRepository {
 
     @Override
     public boolean createUser(User user) {
-        Connection con = null;
-
-        try {
-            con = db.getConnection();
+        try (Connection con = db.getConnection()) {
             String sql = "INSERT INTO users(name,surname,gender,login,password,subscription_type) VALUES (?,?,?,?,?,?)";
             PreparedStatement st = con.prepareStatement(sql);
 
@@ -44,78 +41,17 @@ public class UserRepository implements IUserRepository {
             return true;
         } catch (SQLException e) {
             System.out.println("sql error: " + e.getMessage());
+            return false;
         }
-
-        return false;
     }
 
     @Override
     public User getUser(int id) {
-        Connection con = null;
-
-        try {
-            con = db.getConnection();
-            String sql = "SELECT id,name,surname,gender,login,password,subscription_type FROM users WHERE id=?";
+        try (Connection con = db.getConnection()) {
+            String sql = "SELECT id, name, surname, gender, login, password, subscription_type FROM users WHERE id=?";
             PreparedStatement st = con.prepareStatement(sql);
 
             st.setInt(1, id);
-
-            ResultSet rs = st.executeQuery();
-            if (rs.next()) {
-                return new User(rs.getInt("id"),
-                        rs.getString("name"),
-                        rs.getString("surname"),
-                        rs.getBoolean("gender"),
-                        rs.getString("login"),
-                        rs.getString("password"),
-                        rs.getString("subscription_type"));
-            }
-        } catch (SQLException e) {
-            System.out.println("sql error: " + e.getMessage());
-        }
-        return null;
-    }
-
-
-    @Override
-    public List<User> getAllUsers() {
-        Connection con = null;
-
-        try {
-            con = db.getConnection();
-            String sql = "SELECT id,name,surname,gender,login,password,subscription_type FROM users";
-            Statement st = con.createStatement();
-
-            ResultSet rs = st.executeQuery(sql);
-            List<User> users = new ArrayList<>();
-            while (rs.next()) {
-                User user = new User(rs.getInt("id"),
-                        rs.getString("name"),
-                        rs.getString("surname"),
-                        rs.getBoolean("gender"),
-                        rs.getString("login"),
-                        rs.getString("password"),
-                        rs.getString("subscription_type"));
-
-                users.add(user);
-            }
-
-            return users;
-        } catch (SQLException e) {
-            System.out.println("sql error: " + e.getMessage());
-        }
-
-        return null;
-    }
-
-    @Override
-    public User getUserByLogin(String login) {
-        Connection con = null;
-        try {
-            con = db.getConnection();
-            String sql = "SELECT id, name, surname, gender, login, password, subscription_type FROM users WHERE login=?";
-            PreparedStatement st = con.prepareStatement(sql);
-            st.setString(1, login);
 
             ResultSet rs = st.executeQuery();
             if (rs.next()) {
@@ -134,4 +70,81 @@ public class UserRepository implements IUserRepository {
         }
         return null;
     }
+
+    @Override
+    public List<User> getAllUsers() {
+        List<User> users = new ArrayList<>();
+        try (Connection con = db.getConnection()) {
+            String sql = "SELECT id, name, surname, gender, login, password, subscription_type FROM users";
+            Statement st = con.createStatement();
+
+            ResultSet rs = st.executeQuery(sql);
+            while (rs.next()) {
+                users.add(new User(
+                        rs.getInt("id"),
+                        rs.getString("name"),
+                        rs.getString("surname"),
+                        rs.getBoolean("gender"),
+                        rs.getString("login"),
+                        rs.getString("password"),
+                        rs.getString("subscription_type")
+                ));
+            }
+
+            return users;
+        } catch (SQLException e) {
+            System.out.println("sql error: " + e.getMessage());
+        }
+        return users;
+    }
+
+    @Override
+    public User login(String login, String password) {
+        return null;
+    }
+
+    @Override
+    public User getUserByLogin(String login) {
+        String sql = "SELECT id, name, surname, gender, login, password, subscription_type FROM users WHERE login=? LIMIT 1";
+        try (Connection con = db.getConnection();
+             PreparedStatement st = con.prepareStatement(sql)) {
+            st.setString(1, login);
+            try (ResultSet rs = st.executeQuery()) {
+                if (rs.next()) {
+                    return new User(
+                            rs.getInt("id"),
+                            rs.getString("name"),
+                            rs.getString("surname"),
+                            rs.getBoolean("gender"),
+                            rs.getString("login"),
+                            rs.getString("password"),
+                            rs.getString("subscription_type")
+                    );
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("SQL Error in getUserByLogin: " + e.getMessage());
+        }
+        return null;
+    }
+
+    @Override
+    public boolean checkCredentials(String login, String password) {
+        String sql = "SELECT 1 FROM users WHERE login = ? AND password = ? LIMIT 1";
+
+        try (Connection con = db.getConnection();
+             PreparedStatement st = con.prepareStatement(sql)) {
+            st.setString(1, login);
+            st.setString(2, password);
+
+            try (ResultSet rs = st.executeQuery()) {
+                return rs.next();
+            }
+
+        } catch (SQLException e) {
+            System.out.println("SQL Error: " + e.getMessage());
+            return false;
+        }
+    }
+
 }
