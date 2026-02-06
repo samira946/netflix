@@ -1,7 +1,12 @@
 
 import controllers.interfaces.IUserController;
+import models.Movies;
+import repositories.interfaces.IMovieRepository;
+
 import java.util.InputMismatchException;
 import java.util.Scanner;
+import java.util.List;
+import java.util.ArrayList;
 
 public class MyApplication {
     private final Scanner scanner = new Scanner(System.in);
@@ -64,6 +69,13 @@ public class MyApplication {
         String login = scanner.next();
         System.out.print("Create Password: ");
         String password = scanner.next();
+
+        if (!validateUserInput(name, login, password)) {
+            System.out.println("Registration aborted due to validation errors.");
+
+            return;
+        }
+
         this.currentUserName = name;
         String subscriptionType = subscriptionStep();
 
@@ -106,5 +118,20 @@ public class MyApplication {
         }
 
         return planName;
+    }
+
+    // ===== VALIDATION (код со скрина) =====
+    private boolean validateUserInput(String name, String login, String password) {
+        if (name.length() < 2) {
+            System.out.println("[QA Error]: Name is too short!");
+            return false;
+        }
+
+        if (login.contains(" ") || password.length() < 4) {
+            System.out.println("[QA Error]: Invalid login or weak password!");
+            return false;
+        }
+
+        return true;
     }
 }

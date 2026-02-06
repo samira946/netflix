@@ -1,6 +1,7 @@
 package repositories;
 
 import data.interfaces.IDB;
+import models.Movies;
 import models.User;
 import repositories.interfaces.IUserRepository;
 
@@ -72,7 +73,6 @@ public class UserRepository implements IUserRepository {
         } catch (SQLException e) {
             System.out.println("sql error: " + e.getMessage());
         }
-
         return null;
     }
 
@@ -134,3 +134,4 @@ public class UserRepository implements IUserRepository {
         }
         return null;
     }
+}

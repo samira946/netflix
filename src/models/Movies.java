@@ -1,10 +1,15 @@
 package models;
 
+import controllers.interfaces.INetflixController;
+import java.util.List;
+import java.util.stream.Collectors;
+
 public class Movies {
+
+    private boolean isPremium;
     private int id;
     private String title;
     private String category;
-    private boolean isPremium;
 
 
     public Movies(int id, String title, String category, boolean isPremium) {
