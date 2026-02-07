@@ -60,13 +60,19 @@ public class UserController implements IUserController {
         User user = repo.getUserByLogin(login);
         List<Movies> allMovies = repo.getAllMovies();
 
-        Movies foundMovie = allMovies.stream()
-                .filter(m -> m.getTitle().equalsIgnoreCase(movieTitle))
-                .findFirst()
-                .orElse(null);
+        List<Movies> foundMovies = allMovies.stream()
+                .filter(m -> m.getTitle().toLowerCase().contains(movieTitle.toLowerCase()))
+                .toList();
 
-        if (foundMovie == null) return "Movie not found";
+        if (foundMovies.isEmpty()) {
+            return "Movie not found";
+        }
 
+        if (foundMovies.size() > 1) {
+            return "Movie not found (Too many matches, please be more specific)";
+        }
+
+        Movies foundMovie = foundMovies.get(0);
         String sub = user.getSubscriptionType().toUpperCase();
 
         if (foundMovie.isPremium() && !sub.equals("PREMIUM")) {
