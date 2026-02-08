@@ -77,9 +77,16 @@ public class UserController implements IUserController {
         }
 
         if (sub.equals("BASIC")) {
-            return "Enjoy your movie! '" + foundMovie.getTitle() + "' (contains ads)";
+            return "Enjoy your movie! '" + foundMovie.getTitle() + "' in 720p " + "(contains ads)";
         }
 
+        if (sub.equals("STANDARD")) {
+            return "Enjoy your movie! '" + foundMovie.getTitle() + "' in 1080p";
+        }
+
+        if (sub.equals("PREMIUM")) {
+            return "Enjoy your movie! '" + foundMovie.getTitle() + "' in 4k+HDR";
+        }
         return "Enjoy your movie! '" + foundMovie.getTitle() + "'";
     }
 

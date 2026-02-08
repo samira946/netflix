@@ -45,6 +45,8 @@ public class MyApplication {
                     managerPanel();
                 } else if (option == 5 && currentUserRole.equals("ADMIN")) {
                     adminPanel();
+                } else if (option == 6 && currentUserRole != null) {
+                    logout();
                 } else if (option == 0) {
                     System.out.println("Goodbye!");
                     break;
@@ -74,6 +76,7 @@ public class MyApplication {
             if (currentUserRole.equals("ADMIN")) {
                 System.out.println("5. MANAGE USERS & ROLES (Ban/Promote/Show Passwords)");
             }
+            System.out.println("6. LOGOUT");
         }
         System.out.println("0. Exit");
         System.out.print("Select: ");
@@ -101,6 +104,14 @@ public class MyApplication {
         }
 
         System.out.println(result);
+    }
+
+    private void logout() {
+        isLoggedIn = false;
+        currentLogin = "";
+        currentUserName = "";
+        currentUserRole = "NOT_LOGGED";
+        System.out.println("Logged out successfully!");
     }
 
     private void registrationFlow() {
@@ -197,9 +208,9 @@ public class MyApplication {
 
     private void movieSearchMenu() {
         while (true) {
-            System.out.println("\n--- MOVIE SEARCH ---");
-            System.out.println("1. Search by Category");
-            System.out.println("2. Search by Title");
+            System.out.println("\n--- MOVIES MENU ---");
+            System.out.println("1. Search Movies by Category");
+            System.out.println("2. Select a Movie");
             System.out.println("0. Back to Main Menu");
             System.out.print("Select: ");
 
@@ -215,7 +226,7 @@ public class MyApplication {
                         .forEach(m -> System.out.println("- " + m.getTitle() + (m.isPremium() ? " [PREMIUM]" : "")));
             }
             else if (choice == 2) {
-                System.out.print("Enter movie title to watch: ");
+                System.out.print("Enter movie title to watch (You can enter movie title incomplete): ");
                 String title = scanner.nextLine();
 
                 System.out.println("\n>>> " + controller.watchMovie(currentLogin, title));
