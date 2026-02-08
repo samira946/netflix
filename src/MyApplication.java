@@ -12,7 +12,7 @@ public class MyApplication {
     private final Scanner scanner = new Scanner(System.in);
     private final IUserController controller;
     private String currentUserName = "";
-    private String currentUserRole = "USER";
+    private String currentUserRole = "NOT_LOGGED";
 
 
     private boolean isLoggedIn = false;
@@ -34,10 +34,10 @@ public class MyApplication {
             try {
                 int option = scanner.nextInt();
 
-                if (option == 1) {
+                if (option == 1 && currentUserRole.equals("NOT_LOGGED")) {
                     registrationFlow();
-                } else if (option == 2) {
-                    loginFlow(); // Внутри логина убери автоматический вызов списка фильмов!
+                } else if (option == 2 && currentUserRole.equals("NOT_LOGGED")) {
+                    loginFlow();
                 } else if (option == 3 && currentUserRole != null) {
                     showMoviesMenu();
                     movieSearchMenu();
@@ -60,10 +60,10 @@ public class MyApplication {
 
     private void showMainMenu() {
         System.out.println("\n--- MAIN MENU ---");
-        System.out.println("1. REGISTER NEW ACCOUNT");
-        System.out.println("2. LOGIN");
-
-        if (isLoggedIn) {
+        if (currentUserRole.equals("NOT_LOGGED")) {
+            System.out.println("1. REGISTER NEW ACCOUNT");
+            System.out.println("2. LOGIN");
+        } else if (isLoggedIn) {
             System.out.println("--- Logged in as: " + currentLogin + " [" + currentUserRole + "] ---");
             System.out.println("3. WATCH MOVIES");
 
@@ -234,7 +234,11 @@ public class MyApplication {
                         " | Pass: " + u.getPassword() + " | Role: " + u.getRole()
         ));
 
-        System.out.println("\nActions: 1. Promote to Manager, 2. Ban User, 0. Back");
+        System.out.println("\nActions:");
+        System.out.println("1. Promote to Manager");
+        System.out.println("2. Demote to User");
+        System.out.println("3. Ban User");
+        System.out.println("0. Back");
         int action = scanner.nextInt();
 
         if (action == 1) {
@@ -243,12 +247,16 @@ public class MyApplication {
             if(controller.updateUserRole(id, "MANAGER")) {
                 System.out.println("User promoted!");
             }
-        } else if (action == 2) {
+        } else if (action == 3) {
             System.out.print("Enter User ID to BAN: ");
             int id = scanner.nextInt();
             if(controller.deleteUser(id)) {
                 System.out.println("User deleted.");
             }
+        } else if (action == 2) {
+            System.out.print("Enter Manager ID to demote to User: ");
+            int id = scanner.nextInt();
+            if (controller.updateUserRole(id, "USER")) System.out.println("Manager demoted to regular User.");
         }
     }
 
