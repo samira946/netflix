@@ -5,7 +5,8 @@ import models.Movies;
 import java.util.List;
 
 public interface IMovieRepository {
+    boolean addMovie(Movies movie);
     List<Movies> getAllMovies();
-    Movies getMovieById(int id);
-    List<Movies> findByCategory(String category);
+    public boolean deleteMovie(int id);
+    public boolean updateMovieStatus(int id, boolean isPremium);
 }

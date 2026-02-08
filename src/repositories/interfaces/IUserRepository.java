@@ -13,4 +13,7 @@ public interface IUserRepository {
     User getUserByLogin(String login);
 
     List<models.Movies> getAllMovies();
+
+    boolean updateUserRole(int id, String role);
+    boolean deleteUser(int id);
 }

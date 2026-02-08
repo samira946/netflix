@@ -47,4 +47,10 @@ public class Movies {
                 ", isPremium=" + isPremium +
                 '}';
     }
+
+    public Movies(String title, String category, boolean isPremium) {
+        this.title = title;
+        this.category = category;
+        this.isPremium = isPremium;
+    }
 }

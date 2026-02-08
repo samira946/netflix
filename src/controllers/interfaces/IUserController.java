@@ -11,5 +11,12 @@ public interface IUserController {
     String login(String login, String password);
     List<Movies> getAllMovies();
     String watchMovie(String login, String movieTitle);
+    boolean updateUserRole(int id, String role);
+    boolean deleteUser(int id);
+    List<models.User> getAllUsersList();
+    models.User getUserByLogin(String login);
+    String addMovie(String title, String category, boolean isPremium);
+    public String deleteMovie(int id);
+    public String updateMovieStatus(int id, boolean isPremium);
 
 }

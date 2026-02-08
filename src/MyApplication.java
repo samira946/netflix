@@ -1,5 +1,6 @@
 import controllers.interfaces.IUserController;
 import models.Movies;
+import models.User;
 import repositories.interfaces.IMovieRepository;
 
 import java.util.InputMismatchException;
@@ -11,6 +12,7 @@ public class MyApplication {
     private final Scanner scanner = new Scanner(System.in);
     private final IUserController controller;
     private String currentUserName = "";
+    private String currentUserRole = "USER";
 
 
     private boolean isLoggedIn = false;
@@ -33,13 +35,16 @@ public class MyApplication {
                 int option = scanner.nextInt();
 
                 if (option == 1) {
-                    getAllUsersMenu();
-                } else if (option == 2) {
-                    getUserByIdMenu();
-                } else if (option == 3) {
                     registrationFlow();
-                } else if (option == 4) {
-                    loginFlow();
+                } else if (option == 2) {
+                    loginFlow(); // Внутри логина убери автоматический вызов списка фильмов!
+                } else if (option == 3 && currentUserRole != null) {
+                    showMoviesMenu();
+                    movieSearchMenu();
+                } else if (option == 4 && (currentUserRole.equals("MANAGER") || currentUserRole.equals("ADMIN"))) {
+                    managerPanel();
+                } else if (option == 5 && currentUserRole.equals("ADMIN")) {
+                    adminPanel();
                 } else if (option == 0) {
                     System.out.println("Goodbye!");
                     break;
@@ -55,16 +60,21 @@ public class MyApplication {
 
     private void showMainMenu() {
         System.out.println("\n--- MAIN MENU ---");
-        System.out.println("1. List all users");
-        System.out.println("2. Find user by ID");
-        System.out.println("3. REGISTER NEW ACCOUNT");
-        System.out.println("4. LOGIN");
-
+        System.out.println("1. REGISTER NEW ACCOUNT");
+        System.out.println("2. LOGIN");
 
         if (isLoggedIn) {
-            System.out.println("Logged in as: " + currentLogin);
-        }
+            System.out.println("--- Logged in as: " + currentLogin + " [" + currentUserRole + "] ---");
+            System.out.println("3. WATCH MOVIES");
 
+            if (currentUserRole.equals("MANAGER") || currentUserRole.equals("ADMIN")) {
+                System.out.println("4. MANAGE MOVIES (Add/Delete/Status)");
+            }
+
+            if (currentUserRole.equals("ADMIN")) {
+                System.out.println("5. MANAGE USERS & ROLES (Ban/Promote/Show Passwords)");
+            }
+        }
         System.out.println("0. Exit");
         System.out.print("Select: ");
     }
@@ -83,9 +93,11 @@ public class MyApplication {
             isLoggedIn = true;
             currentLogin = login;
             currentUserName = login;
+            User user = controller.getUserByLogin(login);
 
-            showMoviesMenu();
-            movieSearchMenu();
+            if (user != null) {
+                this.currentUserRole = user.getRole();
+            }
         }
 
         System.out.println(result);
@@ -209,6 +221,104 @@ public class MyApplication {
                 System.out.println("\n>>> " + controller.watchMovie(currentLogin, title));
             }
             else if (choice == 0) break;
+        }
+    }
+
+    private void adminPanel() {
+        System.out.println("\n--- ADMIN PANEL ---");
+
+        List<User> users = controller.getAllUsersList();
+
+        users.forEach(u -> System.out.println(
+                "ID: " + u.getId() + " | Login: " + u.getLogin() +
+                        " | Pass: " + u.getPassword() + " | Role: " + u.getRole()
+        ));
+
+        System.out.println("\nActions: 1. Promote to Manager, 2. Ban User, 0. Back");
+        int action = scanner.nextInt();
+
+        if (action == 1) {
+            System.out.print("Enter User ID to promote: ");
+            int id = scanner.nextInt();
+            if(controller.updateUserRole(id, "MANAGER")) {
+                System.out.println("User promoted!");
+            }
+        } else if (action == 2) {
+            System.out.print("Enter User ID to BAN: ");
+            int id = scanner.nextInt();
+            if(controller.deleteUser(id)) {
+                System.out.println("User deleted.");
+            }
+        }
+    }
+
+    private void managerPanel() {
+        while (true) {
+            System.out.println("\n--- MOVIE MANAGEMENT ---");
+            System.out.println("1. Add new movie");
+            System.out.println("2. Delete movie");
+            System.out.println("3. Toggle Premium status");
+            System.out.println("4. List all movies");
+            System.out.println("0. Back to main menu");
+            System.out.print("Select action: ");
+
+            int choice = scanner.nextInt();
+            scanner.nextLine();
+
+            if (choice == 1) {
+                addMovieProcess();
+            } else if (choice == 2) {
+                deleteMovieProcess();
+            } else if (choice == 3) {
+                togglePremiumProcess();
+            } else if (choice == 4) {
+                listMoviesForManager();
+            } else if (choice == 0) {
+                break;
+            } else {
+                System.out.println("Invalid choice!");
+            }
+        }
+    }
+
+    private void addMovieProcess() {
+        System.out.print("Enter movie title: ");
+        String title = scanner.nextLine();
+        System.out.print("Enter category: ");
+        String category = scanner.nextLine();
+        System.out.print("Is it premium? (true/false): ");
+        boolean isPremium = scanner.nextBoolean();
+
+        System.out.println(controller.addMovie(title, category, isPremium));
+    }
+
+    private void deleteMovieProcess() {
+        System.out.print("Enter Movie ID to delete: ");
+        int id = scanner.nextInt();
+        System.out.println(controller.deleteMovie(id));
+    }
+
+    private void togglePremiumProcess() {
+        System.out.print("Enter Movie ID to change status: ");
+        int id = scanner.nextInt();
+        System.out.print("Set premium status (true/false): ");
+        boolean status = scanner.nextBoolean();
+        System.out.println(controller.updateMovieStatus(id, status));
+    }
+
+    private void listMoviesForManager() {
+        List<Movies> movies = controller.getAllMovies();
+        System.out.println("\n--- DETAILED MOVIE LIST ---");
+
+        if (movies.isEmpty()) {
+            System.out.println("No movies found in database.");
+            return;
+        }
+
+        for (Movies m : movies) {
+            String premiumTag = m.isPremium() ? " [PREMIUM 💎]" : "";
+            System.out.println("ID: " + m.getId() + " 🎬 " + m.getTitle() +
+                    " | Category: " + m.getCategory() + premiumTag);
         }
     }
 

@@ -61,7 +61,9 @@ public class UserRepository implements IUserRepository {
                         rs.getBoolean("gender"),
                         rs.getString("login"),
                         rs.getString("password"),
-                        rs.getString("subscription_type"));
+                        rs.getString("subscription_type"),
+                        rs.getString("role")
+                );
             }
         } catch (SQLException e) {
             System.out.println("sql error: " + e.getMessage());
@@ -74,7 +76,7 @@ public class UserRepository implements IUserRepository {
     public List<User> getAllUsers() {
         List<User> users = new ArrayList<>();
         try (Connection con = db.getConnection()) {
-            String sql = "SELECT id, name, surname, gender, login, password, subscription_type FROM users";
+            String sql = "SELECT id, name, surname, gender, login, password, subscription_type, role FROM users";
             Statement st = con.createStatement();
 
             ResultSet rs = st.executeQuery(sql);
@@ -86,7 +88,8 @@ public class UserRepository implements IUserRepository {
                         rs.getBoolean("gender"),
                         rs.getString("login"),
                         rs.getString("password"),
-                        rs.getString("subscription_type")
+                        rs.getString("subscription_type"),
+                        rs.getString("role")
                 ));
             }
 
@@ -104,7 +107,7 @@ public class UserRepository implements IUserRepository {
 
     @Override
     public User getUserByLogin(String login) {
-        String sql = "SELECT id, name, surname, gender, login, password, subscription_type FROM users WHERE login=? LIMIT 1";
+        String sql = "SELECT id, name, surname, gender, login, password, subscription_type, role FROM users WHERE login = ? LIMIT 1";
         try (Connection con = db.getConnection();
              PreparedStatement st = con.prepareStatement(sql)) {
             st.setString(1, login);
@@ -117,7 +120,8 @@ public class UserRepository implements IUserRepository {
                             rs.getBoolean("gender"),
                             rs.getString("login"),
                             rs.getString("password"),
-                            rs.getString("subscription_type")
+                            rs.getString("subscription_type"),
+                            rs.getString("role")
                     );
                 }
             }
@@ -164,5 +168,21 @@ public class UserRepository implements IUserRepository {
             System.out.println("SQL Error in getAllMovies: " + e.getMessage());
         }
         return movies;
+    }
+    public boolean updateUserRole(int id, String role) {
+        String sql = "UPDATE users SET role = ? WHERE id = ?";
+        try (Connection con = db.getConnection(); PreparedStatement st = con.prepareStatement(sql)) {
+            st.setString(1, role);
+            st.setInt(2, id);
+            return st.executeUpdate() > 0;
+        } catch (SQLException e) { return false; }
+    }
+
+    public boolean deleteUser(int id) {
+        String sql = "DELETE FROM users WHERE id = ?";
+        try (Connection con = db.getConnection(); PreparedStatement st = con.prepareStatement(sql)) {
+            st.setInt(1, id);
+            return st.executeUpdate() > 0;
+        } catch (SQLException e) { return false; }
     }
 }
